@@ -1,0 +1,35 @@
+version: '3.9'
+
+services:
+  backend:
+    build: ./backend
+    container_name: webapp-backend
+    env_file:
+      - ./backend/.env.example
+    ports:
+      - "8000:8000"
+    # Uncomment the next line to persist the SQLite database to your host
+    # volumes:
+    #   - ./backend/app.db:/app/app.db
+
+  frontend:
+    build: ./frontend
+    container_name: webapp-frontend
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8000
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+
+  frontend-prod:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.apache
+      args:
+        - VITE_API_BASE_URL=http://localhost:8000
+    container_name: webapp-frontend-prod
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
