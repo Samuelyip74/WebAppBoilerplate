@@ -1,34 +1,12 @@
 ﻿<template>
-  <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
-    <div class="container-fluid">
-      <span class="navbar-brand fw-bold">WebApp Boilerplate</span>
-      <div class="d-flex align-items-center gap-3">
-        <RouterLink class="text-secondary small" to="/terms">Terms</RouterLink>
-        <RouterLink class="text-secondary small" to="/privacy">Privacy</RouterLink>
-        <div v-if="auth.isAuthenticated" class="dropdown">
-          <button
-            class="btn btn-outline-primary btn-sm dropdown-toggle"
-            type="button"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-          >
-            <span class="me-2">{{ auth.user?.full_name || auth.user?.email }}</span>
-          </button>
-          <ul class="dropdown-menu dropdown-menu-end">
-            <li>
-              <RouterLink class="dropdown-item" to="/app/profile">Profile</RouterLink>
-            </li>
-            <li><hr class="dropdown-divider" /></li>
-            <li>
-              <button class="dropdown-item text-danger" type="button" @click="handleLogout">
-                Logout
-              </button>
-            </li>
-          </ul>
-        </div>
-      </div>
+  <header class="app-toolbar">
+    <h1 class="app-toolbar-title">WebApp Boilerplate</h1>
+    <div class="app-toolbar-actions">
+      <button v-if="auth.isAuthenticated" class="app-toolbar-action-btn" type="button" @click="handleLogout">
+        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+      </button>
     </div>
-  </nav>
+  </header>
 </template>
 
 <script setup>

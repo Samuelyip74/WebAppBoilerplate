@@ -124,7 +124,10 @@ def refresh(payload: schemas.RefreshRequest, db: Session = Depends(get_db)):
 
 
 @app.post("/password-reset")
-def password_reset(payload: schemas.PasswordResetRequest, db: Session = Depends(get_db)):
+def password_reset(payload: schemas.PasswordResetRequest, request: Request, db: Session = Depends(get_db)):
+    client_ip = request.client.host if request.client else "unknown"
+    _check_rate_limit(client_ip, "password_reset")
+    _check_bot(payload.trap, payload.human_answer)
     user = db.query(models.User).filter(models.User.email == payload.email).first()
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")

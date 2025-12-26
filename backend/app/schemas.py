@@ -50,6 +50,8 @@ class RefreshRequest(BaseModel):
 class PasswordResetRequest(BaseModel):
     email: EmailStr
     new_password: str
+    human_answer: str
+    trap: Optional[str] = None
 
 
 class ProductRead(BaseModel):

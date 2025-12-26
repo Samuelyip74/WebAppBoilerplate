@@ -105,8 +105,13 @@ const updateProfile = async (payload) => {
   return data;
 };
 
-const requestPasswordReset = async (email, newPassword) => {
-  const { data } = await apiClient.post('/password-reset', { email, new_password: newPassword });
+const requestPasswordReset = async (email, newPassword, humanAnswer, trap) => {
+  const { data } = await apiClient.post('/password-reset', {
+    email,
+    new_password: newPassword,
+    human_answer: humanAnswer,
+    trap
+  });
   return data;
 };
 

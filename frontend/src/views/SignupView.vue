@@ -1,56 +1,53 @@
 ﻿<template>
-  <div class="container py-5" style="max-width: 520px;">
-    <div class="card shadow-sm border-0">
-      <div class="card-body p-4">
-        <h2 class="mb-3">Create your account</h2>
-        <p class="text-muted">Start with a basic profile. You can update details later.</p>
-
-        <form @submit.prevent="onSubmit" class="mt-3">
-          <input v-model="form.trap" type="text" class="d-none" aria-hidden="true" tabindex="-1" autocomplete="off" />
-          <div class="mb-3">
-            <label class="form-label">Full name</label>
-            <input v-model="form.full_name" type="text" required class="form-control" placeholder="Alex Smith" />
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Email</label>
-            <input v-model="form.email" type="email" required class="form-control" placeholder="you@example.com" />
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Password</label>
-            <input v-model="form.password" type="password" required class="form-control" placeholder="••••••••" />
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Confirm password</label>
-            <input v-model="form.confirm" type="password" required class="form-control" placeholder="Match password" />
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Human check</label>
-            <input
-              v-model="form.humanAnswer"
-              type="text"
-              required
-              inputmode="text"
-              autocomplete="off"
-              class="form-control"
-              placeholder="Type HUMAN"
-            />
-            <div class="form-text">Please type the word HUMAN to continue.</div>
-          </div>
-
-          <button :disabled="auth.loading" type="submit" class="btn btn-primary w-100">
-            <span v-if="auth.loading" class="spinner-border spinner-border-sm me-2" role="status"></span>
-            Create account
-          </button>
-        </form>
-
-        <div v-if="message" class="alert alert-success mt-3 mb-0">{{ message }}</div>
-        <div v-if="auth.error" class="alert alert-danger mt-3 mb-0">{{ auth.error }}</div>
-
-        <div class="d-flex justify-content-between mt-3 text-muted small">
-          <RouterLink to="/login">Back to login</RouterLink>
-          <RouterLink to="/terms">Terms</RouterLink>
-        </div>
+  <div class="auth-hero">
+    <div class="auth-card">
+      <div class="d-flex align-items-center mb-2">
+        <RouterLink to="/" class="me-2 text-decoration-none text-dark">
+          <i class="fa-solid fa-chevron-left"></i>
+        </RouterLink>
+        <h1 class="auth-title mb-0">Create account</h1>
       </div>
+      <p class="auth-subtle">
+        Already have an account?
+        <RouterLink class="auth-link" to="/login">sign in</RouterLink>
+      </p>
+
+      <form @submit.prevent="onSubmit" class="mt-4">
+        <input v-model="form.trap" type="text" class="hidden-input" aria-hidden="true" tabindex="-1" autocomplete="off" />
+
+        <div class="mb-3">
+          <input v-model="form.full_name" type="text" required class="form-control auth-input" placeholder="Name" />
+        </div>
+        <div class="mb-3">
+          <input v-model="form.email" type="email" required class="form-control auth-input" placeholder="Email or phone" />
+        </div>
+        <div class="mb-3">
+          <input v-model="form.password" type="password" required class="form-control auth-input" placeholder="Password" />
+        </div>
+        <div class="mb-3">
+          <input v-model="form.confirm" type="password" required class="form-control auth-input" placeholder="Confirm password" />
+        </div>
+        <div class="mb-3">
+          <input
+            v-model="form.humanAnswer"
+            type="text"
+            required
+            class="form-control auth-input"
+            placeholder="Type HUMAN"
+            autocomplete="off"
+          />
+          <div class="form-text">Please type the word HUMAN to continue.</div>
+        </div>
+
+        <button :disabled="auth.loading" type="submit" class="auth-btn-primary">
+          <span v-if="auth.loading" class="spinner-border spinner-border-sm" role="status"></span>
+          <span v-else>Sign up</span>
+          <i class="fa-solid fa-arrow-right-to-bracket"></i>
+        </button>
+      </form>
+
+      <div v-if="message" class="alert alert-success mt-3 mb-0">{{ message }}</div>
+      <div v-if="auth.error" class="alert alert-danger mt-3 mb-0">{{ auth.error }}</div>
     </div>
   </div>
 </template>

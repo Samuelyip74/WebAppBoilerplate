@@ -9,6 +9,7 @@ import MainApp from '../views/MainApp.vue';
 import HomeView from '../views/HomeView.vue';
 import ProductView from '../views/ProductView.vue';
 import ProfileView from '../views/ProfileView.vue';
+import OrderView from '../views/OrderView.vue';
 import { useAuthStore } from '../store/auth';
 
 const router = createRouter({
@@ -28,6 +29,7 @@ const router = createRouter({
         { path: '', redirect: { name: 'home' } },
         { path: 'home', name: 'home', component: HomeView },
         { path: 'products', name: 'products', component: ProductView },
+        { path: 'orders', name: 'orders', component: OrderView },
         { path: 'profile', name: 'profile', component: ProfileView }
       ]
     }
