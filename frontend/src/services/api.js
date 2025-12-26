@@ -79,8 +79,8 @@ export const clearTokens = () => {
   refreshToken = null;
 };
 
-const login = async (email, password) => {
-  const { data } = await apiClient.post('/login', { email, password });
+const login = async (payload) => {
+  const { data } = await apiClient.post('/login', payload);
   return data;
 };
 

@@ -6,6 +6,7 @@
         <p class="text-muted">Sign in to continue to your dashboard.</p>
 
         <form @submit.prevent="onSubmit" class="mt-3">
+          <input v-model="form.trap" type="text" class="d-none" aria-hidden="true" tabindex="-1" autocomplete="off" />
           <div class="mb-3">
             <label class="form-label">Email</label>
             <input v-model="form.email" type="email" required class="form-control" placeholder="you@example.com" />
@@ -13,6 +14,19 @@
           <div class="mb-3">
             <label class="form-label">Password</label>
             <input v-model="form.password" type="password" required class="form-control" placeholder="••••••••" />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Human check</label>
+            <input
+              v-model="form.humanAnswer"
+              type="text"
+              required
+              inputmode="text"
+              autocomplete="off"
+              class="form-control"
+              placeholder="Type HUMAN"
+            />
+            <div class="form-text">Please type the word HUMAN to continue.</div>
           </div>
           <div class="form-check mb-3">
             <input v-model="form.rememberMe" class="form-check-input" type="checkbox" id="rememberMe" />
@@ -52,7 +66,9 @@ const route = useRoute();
 const form = reactive({
   email: '',
   password: '',
-  rememberMe: false
+  rememberMe: false,
+  humanAnswer: '',
+  trap: ''
 });
 
 onMounted(() => {

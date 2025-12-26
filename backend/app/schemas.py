@@ -11,11 +11,15 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     password: str
+    human_answer: str
+    trap: Optional[str] = None
 
 
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
+    human_answer: str
+    trap: Optional[str] = None
 
 
 class UserRead(UserBase):

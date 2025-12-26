@@ -43,11 +43,11 @@ export const useAuthStore = defineStore('auth', {
       this.initialized = true;
     },
 
-    async login({ email, password, rememberMe }) {
+    async login({ email, password, rememberMe, trap, humanAnswer }) {
       this.loading = true;
       this.error = null;
       try {
-        const data = await api.login(email, password);
+        const data = await api.login({ email, password, trap, human_answer: humanAnswer });
         this.accessToken = data.access_token;
         this.refreshToken = data.refresh_token;
         this.user = data.user;
@@ -78,7 +78,10 @@ export const useAuthStore = defineStore('auth', {
       this.loading = true;
       this.error = null;
       try {
-        const data = await api.signup(payload);
+        const data = await api.signup({
+          ...payload,
+          human_answer: payload.humanAnswer,
+        });
         this.accessToken = data.access_token;
         this.refreshToken = data.refresh_token;
         this.user = data.user;

@@ -6,6 +6,7 @@
         <p class="text-muted">Start with a basic profile. You can update details later.</p>
 
         <form @submit.prevent="onSubmit" class="mt-3">
+          <input v-model="form.trap" type="text" class="d-none" aria-hidden="true" tabindex="-1" autocomplete="off" />
           <div class="mb-3">
             <label class="form-label">Full name</label>
             <input v-model="form.full_name" type="text" required class="form-control" placeholder="Alex Smith" />
@@ -21,6 +22,19 @@
           <div class="mb-3">
             <label class="form-label">Confirm password</label>
             <input v-model="form.confirm" type="password" required class="form-control" placeholder="Match password" />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Human check</label>
+            <input
+              v-model="form.humanAnswer"
+              type="text"
+              required
+              inputmode="text"
+              autocomplete="off"
+              class="form-control"
+              placeholder="Type HUMAN"
+            />
+            <div class="form-text">Please type the word HUMAN to continue.</div>
           </div>
 
           <button :disabled="auth.loading" type="submit" class="btn btn-primary w-100">
@@ -54,7 +68,9 @@ const form = reactive({
   full_name: '',
   email: '',
   password: '',
-  confirm: ''
+  confirm: '',
+  humanAnswer: '',
+  trap: ''
 });
 
 const onSubmit = async () => {
@@ -64,7 +80,13 @@ const onSubmit = async () => {
     return;
   }
   try {
-    await auth.signup({ full_name: form.full_name, email: form.email, password: form.password });
+    await auth.signup({
+      full_name: form.full_name,
+      email: form.email,
+      password: form.password,
+      humanAnswer: form.humanAnswer,
+      trap: form.trap
+    });
     router.push('/app/home');
   } catch (error) {
     // handled in store

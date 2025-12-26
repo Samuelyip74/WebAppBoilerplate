@@ -1,7 +1,9 @@
 ﻿from datetime import timedelta
 from typing import List
+import time
+from collections import defaultdict
 
-from fastapi import Depends, FastAPI, HTTPException, status
+from fastapi import Depends, FastAPI, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
@@ -18,6 +20,11 @@ from .db import Base, SessionLocal, engine, get_db
 from . import models, schemas
 
 app = FastAPI(title="WebApp Boilerplate API")
+
+# naive in-memory rate limits; use a shared store (e.g., Redis) for production
+_attempts = defaultdict(list)  # key: (ip, action) -> list[timestamps]
+RATE_LIMIT_WINDOW = 60  # seconds
+RATE_LIMIT_COUNT = 5
 
 app.add_middleware(
     CORSMiddleware,
@@ -59,8 +66,29 @@ def token_response(user: models.User) -> schemas.TokenResponse:
     )
 
 
+def _check_rate_limit(ip: str, action: str):
+    now = time.time()
+    key = (ip, action)
+    window_start = now - RATE_LIMIT_WINDOW
+    recent = [t for t in _attempts[key] if t >= window_start]
+    if len(recent) >= RATE_LIMIT_COUNT:
+        raise HTTPException(status_code=status.HTTP_429_TOO_MANY_REQUESTS, detail="Too many attempts, please wait")
+    recent.append(now)
+    _attempts[key] = recent
+
+
+def _check_bot(payload_trap: str | None, human_answer: str):
+    if payload_trap:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid request")
+    if not human_answer or human_answer.strip().upper() != "HUMAN":
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Human verification failed")
+
+
 @app.post("/signup", response_model=schemas.TokenResponse)
-def signup(payload: schemas.UserCreate, db: Session = Depends(get_db)):
+def signup(payload: schemas.UserCreate, request: Request, db: Session = Depends(get_db)):
+    client_ip = request.client.host if request.client else "unknown"
+    _check_rate_limit(client_ip, "signup")
+    _check_bot(payload.trap, payload.human_answer)
     existing = db.query(models.User).filter(models.User.email == payload.email).first()
     if existing:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered")
@@ -76,7 +104,10 @@ def signup(payload: schemas.UserCreate, db: Session = Depends(get_db)):
 
 
 @app.post("/login", response_model=schemas.TokenResponse)
-def login(payload: schemas.UserLogin, db: Session = Depends(get_db)):
+def login(payload: schemas.UserLogin, request: Request, db: Session = Depends(get_db)):
+    client_ip = request.client.host if request.client else "unknown"
+    _check_rate_limit(client_ip, "login")
+    _check_bot(payload.trap, payload.human_answer)
     user = db.query(models.User).filter(models.User.email == payload.email).first()
     if not user or not verify_password(payload.password, user.hashed_password):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Incorrect email or password")
