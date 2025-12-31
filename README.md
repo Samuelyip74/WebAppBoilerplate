@@ -3,7 +3,7 @@
 Boilerplate for a JWT-protected web app: Vue 3 + Vite + Bootstrap + Font Awesome on the frontend, FastAPI + SQLite + JWT (access/refresh) on the backend.
 
 ## What’s included
-- Frontend: Vue 3, Vue Router, Pinia, Axios interceptors for JWT + refresh, Bootstrap 5, Font Awesome icons, auth pages (splash, login, signup, reset), main app shell with bottom nav (home, products, profile).
+- Frontend: Vue 3, Vue Router, Pinia, Axios interceptors for JWT + refresh, Bootstrap 5, Font Awesome icons, auth pages (splash, login, signup, reset), themed legal pages, main app shell with bottom nav (home, products, orders, profile + floating action).
 - Backend: FastAPI, SQLite, SQLAlchemy models for users/products, JWT access/refresh, endpoints for signup, login, refresh, password reset, profile CRUD, products seed.
 
 ## Quick start (Docker)
@@ -67,6 +67,12 @@ npm run dev -- --host --port 5173
 - Tokens saved to `localStorage`; Axios attaches `Authorization: Bearer <access>`.
 - On 401, interceptor calls `/refresh` with stored refresh token and retries.
 - “Remember me” saves email/password to `localStorage` for demo convenience.
+- Visible human-check field (type “HUMAN”) and honeypot help deter bots on login/signup/reset.
+
+## Frontend UX notes
+- Auth screens: gradient background, rounded inputs, social row, visible human check.
+- Bottom nav: mobile-friendly sizing with floating center action plus Home, Products, Orders, Profile.
+- Toolbar: centered title with logout icon on the right (shown when authenticated).
 
 ## Rebuild after changes
 - Frontend image: `docker compose build --no-cache frontend && docker compose up -d frontend`
