@@ -115,6 +115,14 @@ const requestPasswordReset = async (email, newPassword, humanAnswer, trap) => {
   return data;
 };
 
+const socialLogin = async ({ idToken, provider }) => {
+  const { data } = await apiClient.post('/social-login', {
+    id_token: idToken,
+    provider
+  });
+  return data;
+};
+
 const fetchProducts = async () => {
   const { data } = await apiClient.get('/products');
   return data;
@@ -129,5 +137,6 @@ export default {
   requestPasswordReset,
   fetchProducts,
   setTokens,
-  clearTokens
+  clearTokens,
+  socialLogin
 };

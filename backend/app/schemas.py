@@ -1,4 +1,4 @@
-﻿from datetime import datetime
+from datetime import datetime
 from typing import List, Optional
 
 from pydantic import BaseModel, EmailStr
@@ -62,3 +62,8 @@ class ProductRead(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class SocialLoginRequest(BaseModel):
+    id_token: str
+    provider: str

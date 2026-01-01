@@ -45,3 +45,7 @@ app.db
 
 # Docker
 docker-compose.override.yml
+
+# firebase
+secret
+secrets

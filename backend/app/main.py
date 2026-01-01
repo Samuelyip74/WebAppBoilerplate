@@ -1,8 +1,13 @@
-﻿from datetime import timedelta
+from datetime import timedelta
 from typing import List
 import time
 from collections import defaultdict
+import secrets
+import os
 
+import firebase_admin
+import logging
+from firebase_admin import auth as fb_auth, credentials
 from fastapi import Depends, FastAPI, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
@@ -20,6 +25,7 @@ from .db import Base, SessionLocal, engine, get_db
 from . import models, schemas
 
 app = FastAPI(title="WebApp Boilerplate API")
+logger = logging.getLogger(__name__)
 
 # naive in-memory rate limits; use a shared store (e.g., Redis) for production
 _attempts = defaultdict(list)  # key: (ip, action) -> list[timestamps]
@@ -39,6 +45,10 @@ app.add_middleware(
 def on_startup():
     Base.metadata.create_all(bind=engine)
     seed_products()
+    if not firebase_admin._apps:
+        cred_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", "/secret/service-account.json")
+        cred = credentials.Certificate(cred_path)
+        firebase_admin.initialize_app(cred)
 
 
 def seed_products():
@@ -111,6 +121,35 @@ def login(payload: schemas.UserLogin, request: Request, db: Session = Depends(ge
     user = db.query(models.User).filter(models.User.email == payload.email).first()
     if not user or not verify_password(payload.password, user.hashed_password):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Incorrect email or password")
+    return token_response(user)
+
+
+@app.post("/social-login", response_model=schemas.TokenResponse)
+def social_login(payload: schemas.SocialLoginRequest, request: Request, db: Session = Depends(get_db)):
+    client_ip = request.client.host if request.client else "unknown"
+    _check_rate_limit(client_ip, "social_login")
+    try:
+        decoded = fb_auth.verify_id_token(payload.id_token)
+    except Exception as exc:
+        logger.exception("Firebase token verification failed")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid social token")
+
+    email = decoded.get("email")
+    name = decoded.get("name") or decoded.get("displayName") or email
+    if not email:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email is required from provider")
+
+    user = db.query(models.User).filter(models.User.email == email).first()
+    if not user:
+        user = models.User(
+            email=email,
+            full_name=name or email,
+            hashed_password=get_password_hash(secrets.token_hex(16)),
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+
     return token_response(user)
 
 

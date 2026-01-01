@@ -80,7 +80,7 @@ export const useAuthStore = defineStore('auth', {
       try {
         const data = await api.signup({
           ...payload,
-          human_answer: payload.humanAnswer,
+          human_answer: payload.humanAnswer
         });
         this.accessToken = data.access_token;
         this.refreshToken = data.refresh_token;
@@ -92,6 +92,26 @@ export const useAuthStore = defineStore('auth', {
         return data;
       } catch (error) {
         this.error = error.response?.data?.detail || 'Signup failed';
+        throw error;
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    async socialLogin({ idToken, provider }) {
+      this.loading = true;
+      this.error = null;
+      try {
+        const data = await api.socialLogin({ idToken, provider });
+        this.accessToken = data.access_token;
+        this.refreshToken = data.refresh_token;
+        this.user = data.user;
+        api.setTokens(data.access_token, data.refresh_token);
+        localStorage.setItem(ACCESS_TOKEN_KEY, data.access_token);
+        localStorage.setItem(REFRESH_TOKEN_KEY, data.refresh_token);
+        return data;
+      } catch (error) {
+        this.error = error.response?.data?.detail || 'Social login failed';
         throw error;
       } finally {
         this.loading = false;

@@ -43,10 +43,9 @@
       <div v-if="auth.error" class="alert alert-danger mt-3 mb-0" role="alert">{{ auth.error }}</div>
 
       <div class="auth-social-row">
-        <a class="auth-social" href="#" aria-label="Sign in with Apple"><i class="fa-brands fa-apple"></i></a>
-        <a class="auth-social" href="#" aria-label="Sign in with Facebook"><i class="fa-brands fa-facebook-f"></i></a>
-        <a class="auth-social" href="#" aria-label="Sign in with Google"><i class="fa-brands fa-google"></i></a>
-        <a class="auth-social" href="#" aria-label="Sign in with Twitter"><i class="fa-brands fa-twitter"></i></a>
+        <button class="auth-social" type="button" aria-label="Sign in with Google" @click="onSocial('google')">
+          <i class="fa-brands fa-google"></i>
+        </button>
       </div>
 
       <div class="d-flex justify-content-between mt-4">
@@ -61,6 +60,7 @@
 import { onMounted, reactive } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from '../store/auth';
+import { signInWithProvider } from '../services/firebase';
 
 const auth = useAuthStore();
 const router = useRouter();
@@ -89,6 +89,17 @@ const onSubmit = async () => {
     router.push(redirect);
   } catch (error) {
     // handled in store
+  }
+};
+
+const onSocial = async (provider) => {
+  auth.error = null;
+  try {
+    const { idToken } = await signInWithProvider(provider);
+    await auth.socialLogin({ idToken, provider });
+    router.push('/app/home');
+  } catch (error) {
+    auth.error = error.response?.data?.detail || error.message || 'Social login failed';
   }
 };
 </script>

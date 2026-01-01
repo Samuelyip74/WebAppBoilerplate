@@ -4,6 +4,10 @@ services:
   backend:
     build: ./backend
     container_name: webapp-backend
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=/secret/service-account.json
+    volumes:
+      - ./secret/service-account.json:/secret/service-account.json:ro
     env_file:
       - ./backend/.env.example
     ports:
@@ -15,8 +19,10 @@ services:
   frontend:
     build: ./frontend
     container_name: webapp-frontend
+    env_file:
+      - ./frontend/.env
     environment:
-      - VITE_API_BASE_URL=http://localhost:8000
+      - VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://localhost:8000}
     ports:
       - "5173:5173"
     depends_on:
@@ -27,8 +33,14 @@ services:
       context: ./frontend
       dockerfile: Dockerfile.apache
       args:
-        - VITE_API_BASE_URL=http://localhost:8000
+        - VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://localhost:8000}
+        - VITE_FIREBASE_API_KEY=${VITE_FIREBASE_API_KEY}
+        - VITE_FIREBASE_AUTH_DOMAIN=${VITE_FIREBASE_AUTH_DOMAIN}
+        - VITE_FIREBASE_PROJECT_ID=${VITE_FIREBASE_PROJECT_ID}
+        - VITE_FIREBASE_APP_ID=${VITE_FIREBASE_APP_ID}
     container_name: webapp-frontend-prod
+    env_file:
+      - ./frontend/.env
     ports:
       - "8080:80"
     depends_on:
